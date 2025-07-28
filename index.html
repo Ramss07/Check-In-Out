@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CCI Makerspace Check-In</title>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 500px;
+        margin: auto;
+        padding: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 12px;
+      }
+      input, textarea, select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+      }
+      button {
+        margin-top: 16px;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>CCI Makerspace Equipment Check-In / Check-Out</h2>
+
+    <form id="checkForm">
+      <label for="equipmentID">Equipment ID:</label>
+      <input type="text" id="equipmentID" required />
+
+      <label for="studentID">Student ID:</label>
+      <input type="text" id="studentID" required />
+
+      <label for="notes">Additional Notes:</label>
+      <textarea id="notes" rows="3"></textarea>
+
+      <label for="action">Status:</label>
+      <select id="action" required>
+        <option value="">-- Select One --</option>
+        <option value="Checked Out">Check Out</option>
+        <option value="Checked In">Check In</option>
+      </select>
+
+      <button type="submit">Submit</button>
+      <p id="response"></p>
+    </form>
+
+    <script>
+      document.getElementById("checkForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const data = {
+          equipmentID: document.getElementById("equipmentID").value,
+          studentID: document.getElementById("studentID").value,
+          notes: document.getElementById("notes").value,
+          action: document.getElementById("action").value,
+        };
+
+        fetch("https://script.google.com/macros/s/AKfycbxB9kJY_tFps2IbF4uGKqgEPli_y64ERBFmI4_9hM4U7M1TFIBratslCyyGxQYZubjW/exec", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: { "Content-Type": "application/json" }
+        })
+        .then(res => res.text())
+        .then(res => {
+          document.getElementById("response").innerText = res;
+          document.getElementById("checkForm").reset();
+        })
+        .catch(err => {
+          document.getElementById("response").innerText = "Error: " + err;
+        });
+      });
+    </script>
+  </body>
+</html>
