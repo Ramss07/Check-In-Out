@@ -1,100 +1,90 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>CCI Makerspace Equipment Check</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 40px;
-      }
-      label {
-        display: block;
-        margin-top: 15px;
-        font-weight: bold;
-      }
-      input, textarea {
-        width: 300px;
-        padding: 8px;
-        font-size: 14px;
-        margin-top: 5px;
-      }
-      button {
-        margin-top: 20px;
-        padding: 10px 20px;
-        font-size: 16px;
-      }
-    </style>
-  </head>
-  <body>
-    <h2>CCI Makerspace Equipment Check</h2>
+<head>
+  <title>CCI Makerspace Check-In / Check-Out</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 300px;
+      padding: 8px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>CCI Makerspace Equipment Check-In / Check-Out</h2>
+  <form id="checkForm">
+    <label for="equipmentId">Equipment ID:</label>
+    <input type="text" name="equipmentId" required />
 
-    <form id="checkForm">
-      <label for="equipmentId">Equipment ID:</label>
-      <input type="text" name="equipmentId" required />
+    <label for="studentId">Student ID:</label>
+    <input type="text" name="studentId" required />
 
-      <label for="studentId">Student ID:</label>
-      <input type="text" name="studentId" required />
+    <label for="notes">Additional Notes:</label>
+    <textarea name="notes" rows="3"></textarea>
 
-      <label for="notes">Additional Notes:</label>
-      <textarea name="notes" rows="4"></textarea>
+    <label for="status">Status:</label>
+    <select name="status" required>
+      <option value="Check Out">Check Out</option>
+      <option value="Check In">Check In</option>
+    </select>
 
-      <button type="submit">Submit</button>
-    </form>
+    <button type="submit">Submit</button>
+  </form>
 
-    <script>
-      const scriptURL = 'https://api.sheet.best/api/sheets/7f7803f3-decb-4b0d-8a50-c34f6c98a9d2';
+  <script>
+    const scriptURL = 'https://api.sheetbest.com/sheets/7f7803f3-decb-4b0d-8a50-c34f6c98a9d2';
 
-      document.getElementById('checkForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const formData = {
-          equipmentId: form.equipmentId.value.trim(),
-          studentId: form.studentId.value.trim(),
-          notes: form.notes.value.trim(),
-        };
+    document.getElementById('checkForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-        try {
-          const response = await fetch(scriptURL);
-          const records = await response.json();
+      const form = e.target;
+      const formData = new FormData(form);
+      const now = new Date().toLocaleString();
 
-          const now = new Date().toISOString();
-          const existing = records.find(
-            r => r.equipmentId === formData.equipmentId && r.status === "Check Out" && !r.checkedInTime
-          );
+      const status = formData.get("status");
+      const checkedOutTime = status === "Check Out" ? now : "";
+      const checkedInTime = status === "Check In" ? now : "";
 
-          if (existing) {
-            // If found, check in
-            await fetch(`${scriptURL}/equipmentId/${formData.equipmentId}`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                checkedInTime: now,
-                status: "Check In",
-              }),
-            });
-            alert("✅ Checked In Successfully!");
-          } else {
-            // Otherwise, check out
-            await fetch(scriptURL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                equipmentId: formData.equipmentId,
-                studentId: formData.studentId,
-                notes: formData.notes,
-                checkedOutTime: now,
-                status: "Check Out",
-                checkedInTime: ""
-              }),
-            });
-            alert("✅ Checked Out Successfully!");
-          }
+      const data = {
+        "Checked Out Time": checkedOutTime,
+        "Equipment ID": formData.get("equipmentId"),
+        "Student ID": formData.get("studentId"),
+        "Additional Notes": formData.get("notes"),
+        "Status": status,
+        "Checked In Time": checkedInTime
+      };
 
+      try {
+        const response = await fetch(scriptURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          alert("✅ Submitted successfully!");
           form.reset();
-        } catch (err) {
-          alert("❌ Error: " + err.message);
+        } else {
+          alert("❌ Submission failed.");
         }
-      });
-    </script>
-  </body>
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      }
+    });
+  </script>
+</body>
 </html>
