@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>CCI Makerspace Equipment Check-In / Check-Out</title>
+    <title>CCI Makerspace Equipment Check</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -54,7 +54,6 @@
         };
 
         try {
-          // First, get all existing rows to check if this equipmentId is already checked out
           const response = await fetch(scriptURL);
           const records = await response.json();
 
@@ -64,7 +63,7 @@
           );
 
           if (existing) {
-            // If found, check in by PATCHing the existing row
+            // If found, check in
             await fetch(`${scriptURL}/equipmentId/${formData.equipmentId}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
@@ -75,7 +74,7 @@
             });
             alert("✅ Checked In Successfully!");
           } else {
-            // Otherwise, create new row as Check Out
+            // Otherwise, check out
             await fetch(scriptURL, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
