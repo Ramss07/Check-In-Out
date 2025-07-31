@@ -1,78 +1,100 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>CCI Makerspace Check-In</title>
-    <meta charset="UTF-8" />
+    <title>CCI Makerspace Equipment Check-In / Check-Out</title>
     <style>
       body {
         font-family: Arial, sans-serif;
-        max-width: 500px;
-        margin: auto;
-        padding: 20px;
+        margin: 40px;
       }
       label {
         display: block;
-        margin-top: 12px;
+        margin-top: 15px;
+        font-weight: bold;
       }
-      input, textarea, select {
-        width: 100%;
+      input, textarea {
+        width: 300px;
         padding: 8px;
-        margin-top: 4px;
+        font-size: 14px;
+        margin-top: 5px;
       }
       button {
-        margin-top: 16px;
+        margin-top: 20px;
         padding: 10px 20px;
+        font-size: 16px;
       }
     </style>
   </head>
   <body>
-    <h2>CCI Makerspace Equipment Check-In / Check-Out</h2>
+    <h2>CCI Makerspace Equipment Check</h2>
 
     <form id="checkForm">
-      <label for="equipmentID">Equipment ID:</label>
-      <input type="text" id="equipmentID" required />
+      <label for="equipmentId">Equipment ID:</label>
+      <input type="text" name="equipmentId" required />
 
-      <label for="studentID">Student ID:</label>
-      <input type="text" id="studentID" required />
+      <label for="studentId">Student ID:</label>
+      <input type="text" name="studentId" required />
 
       <label for="notes">Additional Notes:</label>
-      <textarea id="notes" rows="3"></textarea>
-
-      <label for="action">Status:</label>
-      <select id="action" required>
-        <option value="">-- Select One --</option>
-        <option value="Checked Out">Check Out</option>
-        <option value="Checked In">Check In</option>
-      </select>
+      <textarea name="notes" rows="4"></textarea>
 
       <button type="submit">Submit</button>
-      <p id="response"></p>
     </form>
 
     <script>
-      document.getElementById("checkForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+      const scriptURL = 'https://api.sheet.best/api/sheets/7f7803f3-decb-4b0d-8a50-c34f6c98a9d2';
 
-        const data = {
-          equipmentID: document.getElementById("equipmentID").value,
-          studentID: document.getElementById("studentID").value,
-          notes: document.getElementById("notes").value,
-          action: document.getElementById("action").value,
+      document.getElementById('checkForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+          equipmentId: form.equipmentId.value.trim(),
+          studentId: form.studentId.value.trim(),
+          notes: form.notes.value.trim(),
         };
 
-        fetch("https://script.google.com/macros/s/AKfycbxB9kJY_tFps2IbF4uGKqgEPli_y64ERBFmI4_9hM4U7M1TFIBratslCyyGxQYZubjW/exec", {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: { "Content-Type": "application/json" }
-        })
-        .then(res => res.text())
-        .then(res => {
-          document.getElementById("response").innerText = res;
-          document.getElementById("checkForm").reset();
-        })
-        .catch(err => {
-          document.getElementById("response").innerText = "Error: " + err;
-        });
+        try {
+          // First, get all existing rows to check if this equipmentId is already checked out
+          const response = await fetch(scriptURL);
+          const records = await response.json();
+
+          const now = new Date().toISOString();
+          const existing = records.find(
+            r => r.equipmentId === formData.equipmentId && r.status === "Check Out" && !r.checkedInTime
+          );
+
+          if (existing) {
+            // If found, check in by PATCHing the existing row
+            await fetch(`${scriptURL}/equipmentId/${formData.equipmentId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                checkedInTime: now,
+                status: "Check In",
+              }),
+            });
+            alert("✅ Checked In Successfully!");
+          } else {
+            // Otherwise, create new row as Check Out
+            await fetch(scriptURL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                equipmentId: formData.equipmentId,
+                studentId: formData.studentId,
+                notes: formData.notes,
+                checkedOutTime: now,
+                status: "Check Out",
+                checkedInTime: ""
+              }),
+            });
+            alert("✅ Checked Out Successfully!");
+          }
+
+          form.reset();
+        } catch (err) {
+          alert("❌ Error: " + err.message);
+        }
       });
     </script>
   </body>
