@@ -1,27 +1,42 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>CCI Makerspace Check-In</title>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 500px;
+        margin: auto;
+        padding: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 12px;
+      }
+      input, textarea, select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+      }
+      button {
+        margin-top: 16px;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>CCI Makerspace Equipment Check-In / Check-Out</h2>
 <head>
-  <title>CCI Makerspace Check-In / Check-Out</title>
+  <title>CCI Makerspace Check-In/Out</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
+    body { font-family: Arial; margin: 40px; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
     input, select, textarea {
-      width: 300px;
-      padding: 8px;
-      font-size: 14px;
-      margin-top: 5px;
+      width: 300px; padding: 8px; font-size: 14px; margin-top: 5px;
     }
     button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
+      margin-top: 20px; padding: 10px 20px; font-size: 16px;
     }
   </style>
 </head>
@@ -31,31 +46,68 @@
     <label for="equipmentId">Equipment ID:</label>
     <input type="text" name="equipmentId" required />
 
+    <form id="checkForm">
+      <label for="equipmentID">Equipment ID:</label>
+      <input type="text" id="equipmentID" required />
     <label for="studentId">Student ID:</label>
     <input type="text" name="studentId" required />
 
+      <label for="studentID">Student ID:</label>
+      <input type="text" id="studentID" required />
     <label for="notes">Additional Notes:</label>
     <textarea name="notes" rows="3"></textarea>
 
+      <label for="notes">Additional Notes:</label>
+      <textarea id="notes" rows="3"></textarea>
     <label for="status">Status:</label>
     <select name="status" required>
       <option value="Check Out">Check Out</option>
       <option value="Check In">Check In</option>
     </select>
 
+      <label for="action">Status:</label>
+      <select id="action" required>
+        <option value="">-- Select One --</option>
+        <option value="Checked Out">Check Out</option>
+        <option value="Checked In">Check In</option>
+      </select>
     <button type="submit">Submit</button>
   </form>
 
+      <button type="submit">Submit</button>
+      <p id="response"></p>
+    </form>
   <script>
     const scriptURL = 'https://api.sheetbest.com/sheets/7f7803f3-decb-4b0d-8a50-c34f6c98a9d2';
 
+    <script>
+      document.getElementById("checkForm").addEventListener("submit", function (e) {
+        e.preventDefault();
     document.getElementById('checkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+        const data = {
+          equipmentID: document.getElementById("equipmentID").value,
+          studentID: document.getElementById("studentID").value,
+          notes: document.getElementById("notes").value,
+          action: document.getElementById("action").value,
+        };
       const form = e.target;
       const formData = new FormData(form);
       const now = new Date().toLocaleString();
 
+        fetch("https://script.google.com/macros/s/AKfycbxB9kJY_tFps2IbF4uGKqgEPli_y64ERBFmI4_9hM4U7M1TFIBratslCyyGxQYZubjW/exec", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: { "Content-Type": "application/json" }
+        })
+        .then(res => res.text())
+        .then(res => {
+          document.getElementById("response").innerText = res;
+          document.getElementById("checkForm").reset();
+        })
+        .catch(err => {
+          document.getElementById("response").innerText = "Error: " + err;
       const status = formData.get("status");
       const checkedOutTime = status === "Check Out" ? now : "";
       const checkedInTime = status === "Check In" ? now : "";
@@ -75,6 +127,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
+      });
+    </script>
+  </body>
         if (response.ok) {
           alert("✅ Submitted successfully!");
           form.reset();
