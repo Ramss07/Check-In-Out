@@ -3,213 +3,135 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CCI • UNCC Equipment Check‑In / Check‑Out</title>
-
+  <title>UNCC • CCI Equipment Check‑In / Check‑Out</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    :root{
+    :root {
       --green:#046A38;
-      --gold:#B58500; 
+      --gold:#B58500;
       --green-600:#08502C;
       --bg:#f7faf8;
       --card:#ffffff;
       --ink:#162217;
       --muted:#5d6b64;
-      --ring:rgba(4,106,56,.25);
       --shadow: 0 10px 25px rgba(0,0,0,.08), 0 2px 10px rgba(0,0,0,.06);
     }
-
     *{box-sizing:border-box}
-    html,body{height:100%}
     body{
       margin:0;
-      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background:
-        radial-gradient(1200px 600px at -10% -10%, rgba(4,106,56,.08), transparent 60%),
-        radial-gradient(1000px 600px at 110% 110%, rgba(181,133,0,.12), transparent 55%),
-        var(--bg);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background:var(--bg);
       color:var(--ink);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:32px;
+      display:flex; justify-content:center; padding:32px;
     }
+    .wrap{width:100%; max-width:960px}
 
-    .wrap{
-      width:100%;
-      max-width:960px;
-    }
-
-    header{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      margin-bottom:20px;
-    }
+    header{display:flex; align-items:center; gap:16px; margin-bottom:20px;}
     .crest{
-      width:52px;height:52px; border-radius:12px;
+      width:52px;height:52px;border-radius:12px;
       background:linear-gradient(135deg,var(--green),var(--green-600));
-      display:grid; place-items:center;
-      color:#fff; font-weight:700; letter-spacing:.5px;
+      display:grid;place-items:center;color:#fff;font-weight:700;
       box-shadow: var(--shadow);
     }
-    .brand h1{
-      margin:0;
-      font-size: clamp(1.25rem, 1.2rem + 1.2vw, 1.8rem);
-      font-weight:800;
-    }
-    .brand p{
-      margin:2px 0 0;
-      color:var(--muted); font-weight:600;
-      letter-spacing:.2px;
-    }
+    .brand h1{margin:0;font-size:1.75rem;font-weight:800;}
 
     .card{
-      background:var(--card);
-      border-radius:18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      border:1px solid rgba(4,106,56,.06);
+      background:var(--card);border-radius:18px;box-shadow:var(--shadow);
+      overflow:hidden;border:1px solid rgba(4,106,56,.06);
     }
-
-    .bar{
-      height:6px;
-      background: linear-gradient(90deg, var(--green), var(--gold));
-    }
+    .bar{height:6px;background:linear-gradient(90deg,var(--green),var(--gold));}
 
     form{
-      padding:24px;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:18px 24px;
+      padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;
     }
-    @media (max-width:700px){
-      form{grid-template-columns:1fr}
-    }
+    @media(max-width:700px){form{grid-template-columns:1fr}}
 
-    .field{
-      display:flex; flex-direction:column; gap:8px;
+    .field{display:flex;flex-direction:column;gap:8px;}
+    label{font-weight:700;font-size:.95rem;}
+    input,textarea,select{
+      width:100%;padding:12px 14px;border:1px solid #d7e1db;border-radius:10px;
+      background:#fff;font-size:1rem;
     }
-    label{
-      font-weight:700; font-size:.95rem;
+    input:focus,textarea:focus,select:focus{
+      outline:none;border-color:var(--green);box-shadow:0 0 0 4px rgba(4,106,56,.25);
     }
-    input, textarea, select{
-      appearance:none;
-      width:100%;
-      padding:12px 14px;
-      border:1px solid #d7e1db;
-      border-radius:10px;
-      background:#fff;
-      color:var(--ink);
-      font-size:1rem;
-      transition:.15s border-color, .15s box-shadow, .15s transform;
-    }
-    input:focus, textarea:focus, select:focus{
-      outline:none;
-      border-color: var(--green);
-      box-shadow: 0 0 0 4px var(--ring);
-    }
-    textarea{min-height:110px; resize:vertical}
+    textarea{min-height:110px;resize:vertical}
 
     .seg{
-      grid-column: 1 / -1;
-      display:flex; gap:8px; align-items:center;
-      background:#f1f6f3; border:1px solid #d7e1db; padding:8px; border-radius:12px;
+      grid-column:1/-1;display:flex;gap:8px;align-items:center;
+      background:#f1f6f3;border:1px solid #d7e1db;padding:8px;border-radius:12px;
     }
     .seg button{
-      flex:1;
-      border:0; border-radius:10px;
-      background:#fff;
-      color:var(--ink);
-      padding:12px 14px; font-weight:800; letter-spacing:.3px;
-      cursor:pointer; transition:.15s transform,.15s background;
+      flex:1;border:0;border-radius:10px;background:#fff;color:var(--ink);
+      padding:12px 14px;font-weight:800;cursor:pointer;
       box-shadow: inset 0 0 0 1px #d7e1db;
     }
     .seg button[aria-pressed="true"]{
       background:linear-gradient(135deg,var(--green),var(--green-600));
-      color:#fff;
-      box-shadow:none;
+      color:#fff;box-shadow:none;
     }
-    .seg small{color:var(--muted); font-weight:600}
+    .seg small{color:var(--muted);font-weight:600}
 
     .actions{
-      grid-column: 1 / -1;
-      display:flex; gap:12px; align-items:center; justify-content:flex-end;
-      padding-top:6px;
+      grid-column:1/-1;display:flex;gap:12px;justify-content:flex-end;padding-top:6px;
     }
-    .btn{
-      border:0; border-radius:12px; padding:12px 18px; font-size:1rem; font-weight:800; cursor:pointer;
-      transition:.15s transform, .15s box-shadow;
-    }
-    .btn.primary{
-      background:linear-gradient(135deg,var(--gold),#d9a326);
-      color:#1a1202;
-      box-shadow: 0 8px 18px rgba(181,133,0,.25);
-    }
-    .btn.primary:hover{ transform:translateY(-1px)}
-    .btn.secondary{
-      background:#eef3f0; color:var(--ink);
-    }
+    .btn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer;}
+    .btn.primary{background:linear-gradient(135deg,var(--gold),#d9a326);color:#1a1202;}
+    .btn.secondary{background:#eef3f0;color:var(--ink);}
 
-    .hint{
-      grid-column:1 / -1;
-      margin-top:-6px; color:var(--muted); font-size:.95rem;
-    }
+    .hint{grid-column:1/-1;margin-top:-6px;color:var(--muted);font-size:.95rem;}
 
-    .toast{
-      position:fixed; right:24px; bottom:24px; z-index:50;
-      min-width:260px; max-width:420px;
-      padding:14px 16px; border-radius:12px; color:#0a301d; background:#e6f7ef;
-      border:1px solid #bfead3; box-shadow:var(--shadow);
-      display:none; gap:10px; font-weight:700;
+    /* Big overlay feedback */
+    .overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.55);
+      display:none;align-items:center;justify-content:center;z-index:99;
     }
-    .toast.error{ background:#fdeaea; color:#5b1616; border-color:#f3c7c7 }
-
-    .footer{
-      margin-top:14px; text-align:center; color:var(--muted); font-size:.9rem;
+    .overlay.show{display:flex;animation:fadeIn .2s ease-out;}
+    .overlay .msg{
+      background:#fff;padding:30px 40px;border-radius:20px;text-align:center;
+      font-weight:800;font-size:1.5rem;max-width:350px;color:var(--green);
+      box-shadow: var(--shadow);
     }
-    .hide{display:none}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="crest" aria-hidden="true">CCI</div>
+      <div class="crest">CCI</div>
       <div class="brand">
         <h1>UNCC • CCI Equipment Check‑In / Check‑Out</h1>
-        <p style="color:var(--green)">Fast, simple, and Niner‑approved.</p>
       </div>
     </header>
 
-    <div class="card" role="region" aria-label="Check in and out form">
-      <div class="bar" aria-hidden="true"></div>
+    <div class="card">
+      <div class="bar"></div>
 
       <form id="checkForm" novalidate>
-        <!-- Segmented control for status -->
         <div class="seg" role="group" aria-label="Select status">
-          <button type="button" id="btnOut" class="seg-btn" aria-pressed="true" data-value="Check Out">Check Out</button>
-          <button type="button" id="btnIn"  class="seg-btn" aria-pressed="false" data-value="Check In">Check In</button>
-          <small id="segHint">Choose an action, then fill the fields.</small>
+          <button type="button" id="btnOut" aria-pressed="true" data-value="Check Out">Check Out</button>
+          <button type="button" id="btnIn" aria-pressed="false" data-value="Check In">Check In</button>
+          <small>Choose an action, then fill the fields.</small>
           <input type="hidden" name="status" id="status" value="Check Out" />
         </div>
 
         <div class="field">
           <label for="equipmentId">Equipment ID</label>
-          <input type="text" id="equipmentId" name="equipmentId" required placeholder="e.g., CAM‑1234" autocomplete="off" />
+          <input type="text" id="equipmentId" name="equipmentId" required placeholder="e.g., CAM‑1234"/>
         </div>
 
         <div class="field">
           <label for="studentId">Student ID</label>
-          <input type="text" id="studentId" name="studentId" required placeholder="e.g., 800123456" inputmode="numeric" />
+          <input type="text" id="studentId" name="studentId" required placeholder="e.g., 800123456"/>
         </div>
 
-        <div class="field" style="grid-column:1 / -1">
+        <div class="field" style="grid-column:1/-1">
           <label for="notes">Additional Notes</label>
           <textarea id="notes" name="notes" placeholder="Condition, accessories, location, etc."></textarea>
         </div>
 
-        <p class="hint">Tip: Use a barcode scanner in the Equipment ID field for quicker processing.</p>
+        <p class="hint">Use a barcode scanner in the Equipment ID field for quicker processing.</p>
 
         <div class="actions">
           <button type="button" class="btn secondary" id="resetBtn">Clear</button>
@@ -218,11 +140,15 @@
       </form>
     </div>
 
-    <div class="footer">© CCI • UNC Charlotte</div>
+    <div class="footer" style="margin-top:14px;text-align:center;color:#5d6b64;font-size:.9rem;">
+      © CCI • UNC Charlotte
+    </div>
   </div>
 
-  <div id="toastOK"   class="toast" role="status" aria-live="polite">✅ Submitted successfully.</div>
-  <div id="toastErr"  class="toast error" role="alert">❌ Submission failed. Please try again.</div>
+  <!-- Big Success Overlay -->
+  <div class="overlay" id="overlay">
+    <div class="msg" id="overlayMsg">✅ Submitted Successfully!</div>
+  </div>
 
   <script>
     const API = 'https://api.sheetbest.com/sheets/7f7803f3-decb-4b0d-8a50-c34f6c98a9d2';
@@ -235,73 +161,50 @@
       btnOut.setAttribute('aria-pressed', String(val==='Check Out'));
       btnIn.setAttribute('aria-pressed',  String(val==='Check In'));
     }
-    btnOut.addEventListener('click', () => setStatus('Check Out'));
-    btnIn .addEventListener('click', () => setStatus('Check In'));
+    btnOut.addEventListener('click',()=>setStatus('Check Out'));
+    btnIn.addEventListener('click',()=>setStatus('Check In'));
 
-    // Toast helpers
-    function showToast(el){
-      el.style.display='grid';
-      setTimeout(()=>{ el.style.display='none'; }, 2600);
-    }
-
-    // Reset
     document.getElementById('resetBtn').addEventListener('click',()=>{
       document.getElementById('checkForm').reset();
       setStatus('Check Out');
-      document.getElementById('equipmentId').focus();
     });
 
-    // Submit
     const form = document.getElementById('checkForm');
+    const overlay = document.getElementById('overlay');
     const submitBtn = document.getElementById('submitBtn');
 
-    form.addEventListener('submit', async (e)=>{
+    form.addEventListener('submit',async(e)=>{
       e.preventDefault();
+      if(!form.reportValidity())return;
+      submitBtn.disabled=true;submitBtn.textContent='Submitting…';
 
-      // basic validity check
-      if(!form.reportValidity()) return;
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Submitting…';
-
-      const fd = new FormData(form);
-      const now = new Date().toLocaleString();
-
-      const status = fd.get('status');
-      const payload = {
-        "Checked Out Time": status === "Check Out" ? now : "",
-        "Equipment ID":     fd.get('equipmentId') ?? "",
-        "Student ID":       fd.get('studentId')   ?? "",
-        "Additional Notes": fd.get('notes')       ?? "",
-        "Status":           status,
-        "Checked In Time":  status === "Check In" ? now : ""
+      const fd=new FormData(form);const now=new Date().toLocaleString();
+      const status=fd.get('status');
+      const payload={
+        "Checked Out Time": status==="Check Out"?now:"",
+        "Equipment ID": fd.get('equipmentId')??"",
+        "Student ID": fd.get('studentId')??"",
+        "Additional Notes": fd.get('notes')??"",
+        "Status": status,
+        "Checked In Time": status==="Check In"?now:""
       };
 
       try{
-        const res = await fetch(API, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
-        });
+        const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!res.ok) throw new Error('Network error');
 
-        if(!res.ok) throw new Error('Network response was not ok');
+        overlay.classList.add('show');
+        setTimeout(()=>overlay.classList.remove('show'),2500);
 
-        showToast(document.getElementById('toastOK'));
-        form.reset();
-        setStatus('Check Out');
-        document.getElementById('equipmentId').focus();
+        form.reset();setStatus('Check Out');
       }catch(err){
-        console.error(err);
-        showToast(document.getElementById('toastErr'));
+        overlay.querySelector('#overlayMsg').textContent='❌ Submission Failed!';
+        overlay.classList.add('show');
+        setTimeout(()=>{overlay.classList.remove('show');overlay.querySelector('#overlayMsg').textContent='✅ Submitted Successfully!';},2500);
       }finally{
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit';
+        submitBtn.disabled=false;submitBtn.textContent='Submit';
       }
     });
-
-    // Focus first field on load
-    window.addEventListener('load',()=> document.getElementById('equipmentId').focus());
   </script>
 </body>
 </html>
-
