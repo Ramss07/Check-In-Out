@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UNCC • CCI Equipment Check‑In / Check‑Out</title>
+  <title>UNCC • CCI Equipment Check-In / Check-Out</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -82,7 +82,6 @@
 
     .hint{grid-column:1/-1;margin-top:-6px;color:var(--muted);font-size:.95rem;}
 
-    /* Big overlay feedback */
     .overlay{
       position:fixed;inset:0;background:rgba(0,0,0,.55);
       display:none;align-items:center;justify-content:center;z-index:99;
@@ -101,7 +100,7 @@
     <header>
       <div class="crest">CCI</div>
       <div class="brand">
-        <h1>UNCC • CCI Equipment Check‑In / Check‑Out</h1>
+        <h1>UNCC • CCI Equipment Check-In / Check-Out</h1>
       </div>
     </header>
 
@@ -118,7 +117,7 @@
 
         <div class="field">
           <label for="equipmentId">Equipment ID</label>
-          <input type="text" id="equipmentId" name="equipmentId" required placeholder="e.g., CAM‑1234"/>
+          <input type="text" id="equipmentId" name="equipmentId" required placeholder="e.g., CAM-1234"/>
         </div>
 
         <div class="field">
@@ -151,11 +150,13 @@
   </div>
 
   <script>
-    const API = 'https://api.sheetbest.com/sheets/7f7803f3-decb-4b0d-8a50-c34f6c98a9d2';
+    // Your Apps Script Web App (Execute as Me; access: Anyone or your org)
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwAUmOP8JH29pR4ZydrhbwYA8Gb_HEd8CnDm3J1zvPaTS9WUsbSArKX-mHOTPDe6W-6pA/exec';
 
     const btnOut = document.getElementById('btnOut');
     const btnIn  = document.getElementById('btnIn');
     const statusInput = document.getElementById('status');
+
     function setStatus(val){
       statusInput.value = val;
       btnOut.setAttribute('aria-pressed', String(val==='Check Out'));
@@ -173,36 +174,49 @@
     const overlay = document.getElementById('overlay');
     const submitBtn = document.getElementById('submitBtn');
 
-    form.addEventListener('submit',async(e)=>{
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if(!form.reportValidity())return;
-      submitBtn.disabled=true;submitBtn.textContent='Submitting…';
+      if(!form.reportValidity()) return;
 
-      const fd=new FormData(form);const now=new Date().toLocaleString();
-      const status=fd.get('status');
-      const payload={
-        "Checked Out Time": status==="Check Out"?now:"",
-        "Equipment ID": fd.get('equipmentId')??"",
-        "Student ID": fd.get('studentId')??"",
-        "Additional Notes": fd.get('notes')??"",
-        "Status": status,
-        "Checked In Time": status==="Check In"?now:""
-      };
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting…';
 
-      try{
-        const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-        if(!res.ok) throw new Error('Network error');
+      const fd = new FormData(form);
+      const status = fd.get('status');
 
+      // Send only what the Web App expects; timestamps are set server-side
+      const body = new URLSearchParams({
+        equipmentId: fd.get('equipmentId') ?? '',
+        studentId:   fd.get('studentId') ?? '',
+        notes:       fd.get('notes') ?? '',
+        status
+      });
+
+      try {
+        // no-cors avoids preflight and still writes to the sheet; response is opaque
+        await fetch(WEB_APP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body
+        });
+
+        overlay.querySelector('#overlayMsg').textContent = '✅ Submitted Successfully!';
         overlay.classList.add('show');
-        setTimeout(()=>overlay.classList.remove('show'),2500);
+        setTimeout(()=>overlay.classList.remove('show'), 1800);
 
-        form.reset();setStatus('Check Out');
-      }catch(err){
-        overlay.querySelector('#overlayMsg').textContent='❌ Submission Failed!';
+        form.reset(); setStatus('Check Out');
+      } catch (err) {
+        overlay.querySelector('#overlayMsg').textContent = '❌ Submission Failed!';
         overlay.classList.add('show');
-        setTimeout(()=>{overlay.classList.remove('show');overlay.querySelector('#overlayMsg').textContent='✅ Submitted Successfully!';},2500);
-      }finally{
-        submitBtn.disabled=false;submitBtn.textContent='Submit';
+        setTimeout(()=>{
+          overlay.classList.remove('show');
+          overlay.querySelector('#overlayMsg').textContent = '✅ Submitted Successfully!';
+        }, 2200);
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit';
       }
     });
   </script>
